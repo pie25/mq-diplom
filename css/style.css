@@ -640,16 +640,13 @@ strike {
   box-sizing: border-box;
   padding-top: 50px;
   padding-bottom: 50px;
-  background-color: #000000;
-  u: 0,5;
+  background-color:  rgba(0, 0, 0, 0.5);
+  opacity: 0,5;
   overflow-y: auto;
   position: fixed;
   top: 0;
   left: 0;
   display: flex;
-
-  visibility: hidden;
-
 }
 
 .popup_container {
