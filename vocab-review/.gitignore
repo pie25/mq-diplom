@@ -1,0 +1,5 @@
+node_modules
+dist
+scripts/sources/
+scripts/needs_definitions.json
+.DS_Store

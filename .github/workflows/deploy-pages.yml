@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+      - claude/chinese-vocab-review-app-u9xbhd
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: vocab-review/package-lock.json
+
+      - name: Install app dependencies
+        working-directory: vocab-review
+        run: npm ci
+
+      - name: Test and build the vocabulary app
+        working-directory: vocab-review
+        run: |
+          npm test
+          npm run build
+
+      - name: Assemble site
+        # The diploma layout stays at the root; the vocabulary app lives under /vocab-review/.
+        run: |
+          mkdir -p _site/vocab-review
+          cp -r index.html style.css css fonts images svg _site/ 2>/dev/null || true
+          cp -r vocab-review/dist/. _site/vocab-review/
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}vocab-review/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
