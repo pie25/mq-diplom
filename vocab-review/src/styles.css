@@ -417,7 +417,7 @@ button {
 
 .reveal-bar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .reveal-button {
@@ -447,7 +447,8 @@ button {
   font-family: var(--font-cjk);
 }
 
-.reveal-button:first-child .reveal-icon {
+/* ☆ and ♫ are symbol glyphs; a touch larger so they read like the CJK labels */
+.reveal-icon.symbol {
   font-size: 1.5rem;
 }
 
@@ -457,6 +458,17 @@ button {
   line-height: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Four controls on a narrow phone: tighten the labels a little so
+   "Save Pinyin" and "Definition" never wrap or collide. */
+@media (max-width: 400px) {
+  .reveal-label {
+    font-size: 0.625rem;
+    height: 0.625rem;
+    letter-spacing: 0.06em;
+  }
 }
 
 .hint {

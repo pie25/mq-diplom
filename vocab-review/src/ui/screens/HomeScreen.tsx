@@ -1,4 +1,4 @@
-import { navigate } from "../../app/router";
+import { listPath, navigate } from "../../app/router";
 import { useCollection, useReviewSession } from "../../app/session";
 import { formatNumber } from "../format";
 
@@ -22,9 +22,13 @@ export function HomeScreen() {
         <button type="button" className="menu-item" onClick={() => navigate("/review")}>
           {continueLabel}
         </button>
-        <button type="button" className="menu-item" onClick={() => navigate("/saved")}>
+        <button type="button" className="menu-item" onClick={() => navigate(listPath("saved"))}>
           Saved words
           {progress.saved > 0 && <span className="menu-meta">{formatNumber(progress.saved)}</span>}
+        </button>
+        <button type="button" className="menu-item" onClick={() => navigate(listPath("savedPinyin"))}>
+          Save Pinyin
+          {progress.savedPinyin > 0 && <span className="menu-meta">{formatNumber(progress.savedPinyin)}</span>}
         </button>
         <button type="button" className="menu-item" onClick={() => navigate("/settings")}>
           Settings

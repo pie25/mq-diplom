@@ -1,19 +1,23 @@
 import { useState } from "react";
+import { listPath } from "../../app/router";
 import { useReviewSession, useWord } from "../../app/session";
+import type { SavedCategory } from "../../domain/review";
 import { RevealBar } from "../components/RevealBar";
 import { Screen } from "../components/Screen";
 import { Stage } from "../components/Stage";
 import { WordDisplay } from "../components/WordDisplay";
 import { describeLevel } from "../format";
 
-export function WordScreen({ id }: { id: number }) {
+/** A word opened from one of the bookmark lists; `category` only decides where "back" goes. */
+export function WordScreen({ id, category }: { id: number; category: SavedCategory }) {
   const word = useWord(id);
   const session = useReviewSession();
   const [pronunciation, setPronunciation] = useState(false);
   const [definition, setDefinition] = useState(false);
+  const back = listPath(category);
   if (!word) {
     return (
-      <Screen back="/saved">
+      <Screen back={back}>
         <p className="empty">This word is not in the collection.</p>
       </Screen>
     );
@@ -21,7 +25,7 @@ export function WordScreen({ id }: { id: number }) {
   const level = describeLevel(word.metadata);
   return (
     <Screen
-      back="/saved"
+      back={back}
       className="review"
       scrollEdges={false}
       aside={level ? <span className="counter">{level}</span> : null}
@@ -33,10 +37,12 @@ export function WordScreen({ id }: { id: number }) {
       </Stage>
       <div className="review-bottom chrome chrome-bottom">
         <RevealBar
-          saved={session.isSaved(word.id)}
+          saved={session.isSaved("saved", word.id)}
+          savedPinyin={session.isSaved("savedPinyin", word.id)}
           pronunciation={pronunciation}
           definition={definition}
-          onToggleSaved={() => session.toggleSavedWord(word.id)}
+          onToggleSaved={() => session.toggleSaved("saved", word.id)}
+          onToggleSavedPinyin={() => session.toggleSaved("savedPinyin", word.id)}
           onTogglePronunciation={() => setPronunciation((v) => !v)}
           onToggleDefinition={() => setDefinition((v) => !v)}
         />

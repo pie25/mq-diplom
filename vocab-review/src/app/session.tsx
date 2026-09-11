@@ -6,18 +6,19 @@ import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNod
 import type { Collection, Word } from "../domain/types";
 import {
   canUndo,
-  clearSavedWords,
+  clearSavedIn,
   getCurrentWordId,
   getProgress,
   isComplete,
-  isSaved,
+  isSavedIn,
   moveForward,
   resetAll,
   resetProgress,
-  toggleSavedWord,
+  toggleSavedIn,
   undoPreviousReview,
   type Progress,
   type ReviewState,
+  type SavedCategory,
 } from "../domain/review";
 import type { ReviewStore } from "../storage/reviewStore";
 
@@ -64,14 +65,15 @@ export interface ReviewSession {
   currentWord: Word | null;
   complete: boolean;
   canUndo: boolean;
-  isSaved(id: number): boolean;
-  getSavedWords(): Word[];
+  /** Bookmark lists ("saved", "savedPinyin") share one API; the category picks the list. */
+  isSaved(category: SavedCategory, id: number): boolean;
+  getSavedWords(category: SavedCategory): Word[];
+  toggleSaved(category: SavedCategory, id: number): void;
+  clearSaved(category: SavedCategory): void;
   moveForward(): void;
   undoPreviousReview(): void;
-  toggleSavedWord(id: number): void;
   resetProgress(): void;
   resetAll(): void;
-  clearSavedWords(): void;
 }
 
 export function useReviewSession(): ReviewSession {
@@ -85,15 +87,15 @@ export function useReviewSession(): ReviewSession {
       currentWord: currentId === null ? null : wordsById.get(currentId) ?? null,
       complete: isComplete(state),
       canUndo: canUndo(state),
-      isSaved: (id) => isSaved(state, id),
-      getSavedWords: () =>
-        state.saved.map((id) => wordsById.get(id)).filter((w): w is Word => Boolean(w)),
+      isSaved: (category, id) => isSavedIn(state, category, id),
+      getSavedWords: (category) =>
+        state[category].map((id) => wordsById.get(id)).filter((w): w is Word => Boolean(w)),
+      toggleSaved: (category, id) => store.update((s) => toggleSavedIn(s, category, id)),
+      clearSaved: (category) => store.update((s) => clearSavedIn(s, category)),
       moveForward: () => store.update(moveForward),
       undoPreviousReview: () => store.update(undoPreviousReview),
-      toggleSavedWord: (id) => store.update((s) => toggleSavedWord(s, id)),
       resetProgress: () => store.update((s) => resetProgress(s)),
       resetAll: () => store.update(() => resetAll(collection)),
-      clearSavedWords: () => store.update(clearSavedWords),
     };
   }, [state, store, collection, wordsById]);
 }

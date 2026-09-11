@@ -34,13 +34,20 @@ reviewed ids, saved ids and the current position. Closing or refreshing the
 app resumes exactly where you were. Saved words are independent from review
 progress and survive a progress reset; only "Reset all data" removes them.
 
+There are two independent bookmark lists with identical mechanics: **Saved**
+(☆, the word itself) and **Save Pinyin** (♫, words whose pronunciation you
+want to keep). A word can be in either, both or neither; each list has its own
+row on the home screen (`#/saved`, `#/pinyin`) and its own word view. In the
+code they are one `SavedCategory` (`"saved" | "savedPinyin"`), so adding a
+third list is a matter of adding a category, not new screens.
+
 ## Architecture
 
 ```
 src/
   domain/      vocabulary types + pure review logic (no React, no storage)
     types.ts       Collection / Word
-    review.ts      ReviewState, moveForward, undoPreviousReview, toggleSavedWord, ...
+    review.ts      ReviewState, moveForward, undoPreviousReview, toggleSavedIn, ...
   storage/     persistence: StorageAdapter (localStorage today), ReviewStore
   data/        collection registry + loader (public/collections/*.json)
   app/         React bindings: session hooks, hash router

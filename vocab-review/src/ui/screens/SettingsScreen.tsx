@@ -30,6 +30,10 @@ export function SettingsScreen() {
           <dt>Saved</dt>
           <dd>{formatNumber(progress.saved)}</dd>
         </div>
+        <div className="stat">
+          <dt>Save Pinyin</dt>
+          <dd>{formatNumber(progress.savedPinyin)}</dd>
+        </div>
       </dl>
       <nav className="menu" aria-label="Actions">
         <button type="button" className="menu-item" onClick={() => setPending("progress")}>
@@ -57,13 +61,16 @@ export function SettingsScreen() {
         }}
       >
         <p>Every word becomes unreviewed and the deck is shuffled again.</p>
-        <p>Your {formatNumber(progress.saved)} saved words are kept.</p>
+        <p>
+          Your {formatNumber(progress.saved)} saved words and {formatNumber(progress.savedPinyin)} Save Pinyin
+          words are kept.
+        </p>
       </ConfirmDialog>
       <ConfirmDialog
         open={pending === "all"}
         title="Reset all data?"
         confirmLabel="Delete everything"
-        acknowledgement={`Also delete my ${formatNumber(progress.saved)} saved words`}
+        acknowledgement={`Also delete my ${formatNumber(progress.saved)} saved and ${formatNumber(progress.savedPinyin)} Save Pinyin words`}
         danger
         onCancel={() => setPending(null)}
         onConfirm={() => {
@@ -72,7 +79,7 @@ export function SettingsScreen() {
           navigate("/");
         }}
       >
-        <p>This removes your review progress and every saved word, and starts a new shuffled deck.</p>
+        <p>This removes your review progress and both lists of saved words, and starts a new shuffled deck.</p>
         <p>There is no way to get them back.</p>
       </ConfirmDialog>
     </Screen>

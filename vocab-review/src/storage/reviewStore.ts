@@ -6,8 +6,8 @@ import type { Collection } from "../domain/types";
 import {
   createReviewState,
   isReviewState,
+  normalizeReviewState,
   reconcileWithCollection,
-  REVIEW_SCHEMA_VERSION,
   type ReviewState,
 } from "../domain/review";
 import type { StorageAdapter } from "./storage";
@@ -28,7 +28,8 @@ export function reviewStateKey(collectionId: string): string {
 export function loadReviewState(collection: Collection, storage: StorageAdapter): ReviewState {
   const stored = storage.get<unknown>(reviewStateKey(collection.id));
   if (isReviewState(stored) && stored.collectionId === collection.id) {
-    const reconciled = reconcileWithCollection({ ...stored, schemaVersion: REVIEW_SCHEMA_VERSION }, collection);
+    // Older schemas are upgraded in place (e.g. v1 has no savedPinyin list).
+    const reconciled = reconcileWithCollection(normalizeReviewState(stored), collection);
     if (reconciled !== stored) storage.set(reviewStateKey(collection.id), reconciled);
     return reconciled;
   }

@@ -72,10 +72,12 @@ export function ReviewScreen() {
       </Stage>
       <div className="review-bottom chrome chrome-bottom">
         <RevealBar
-          saved={session.isSaved(currentWord.id)}
+          saved={session.isSaved("saved", currentWord.id)}
+          savedPinyin={session.isSaved("savedPinyin", currentWord.id)}
           pronunciation={shown.pronunciation}
           definition={shown.definition}
-          onToggleSaved={() => session.toggleSavedWord(currentWord.id)}
+          onToggleSaved={() => session.toggleSaved("saved", currentWord.id)}
+          onToggleSavedPinyin={() => session.toggleSaved("savedPinyin", currentWord.id)}
           onTogglePronunciation={() => toggle("pronunciation")}
           onToggleDefinition={() => toggle("definition")}
         />

@@ -6,8 +6,11 @@ import {
   getProgress,
   isComplete,
   moveForward,
+  normalizeReviewState,
   reconcileWithCollection,
+  resetAll,
   resetProgress,
+  toggleSavedIn,
   toggleSavedWord,
   undoPreviousReview,
 } from "./review";
@@ -116,6 +119,44 @@ describe("saved words", () => {
   });
 });
 
+describe("save pinyin", () => {
+  it("is a second list with the same mechanics, independent from saved", () => {
+    let s = createReviewState(collection, rng);
+    s = toggleSavedIn(s, "savedPinyin", 2);
+    expect(s.savedPinyin).toEqual([2]);
+    expect(s.saved).toEqual([]);
+    s = toggleSavedIn(s, "saved", 2);
+    expect(s.saved).toEqual([2]);
+    expect(s.savedPinyin).toEqual([2]);
+    s = toggleSavedIn(s, "savedPinyin", 2);
+    expect(s.savedPinyin).toEqual([]);
+    expect(s.saved).toEqual([2]);
+    expect(getProgress(s)).toMatchObject({ saved: 1, savedPinyin: 0 });
+  });
+
+  it("survives a progress reset and is cleared by reset all", () => {
+    let s = createReviewState(collection, rng);
+    s = toggleSavedIn(toggleSavedIn(moveForward(s), "savedPinyin", 3), "saved", 4);
+    s = resetProgress(s, rng);
+    expect(s.reviewed).toEqual([]);
+    expect(s.saved).toEqual([4]);
+    expect(s.savedPinyin).toEqual([3]);
+    const fresh = resetAll(collection, rng);
+    expect(fresh.saved).toEqual([]);
+    expect(fresh.savedPinyin).toEqual([]);
+  });
+
+  it("upgrades a v1 state that has no savedPinyin list", () => {
+    const v1 = { ...createReviewState(collection, rng), saved: [1] } as Record<string, unknown>;
+    delete v1.savedPinyin;
+    v1.schemaVersion = 1;
+    const s = normalizeReviewState(v1 as unknown as ReturnType<typeof createReviewState>);
+    expect(s.savedPinyin).toEqual([]);
+    expect(s.saved).toEqual([1]);
+    expect(s.schemaVersion).toBe(2);
+  });
+});
+
 describe("reconcile", () => {
   it("keeps the active card when the collection gains and loses words", () => {
     let s = createReviewState(collection, rng);
@@ -124,10 +165,12 @@ describe("reconcile", () => {
       ...collection,
       words: [...collection.words.filter((w) => w.id !== 1), { ...collection.words[0], id: 5, written_form: "E" }],
     };
+    s = toggleSavedIn(toggleSavedIn(s, "savedPinyin", 1), "savedPinyin", 3);
     const r = reconcileWithCollection(s, changed, rng);
     expect(r.order).toEqual([2, 3, 4, 5]);
     expect(getCurrentWordId(r)).toBe(2);
     expect(r.reviewed).toEqual([]);
+    expect(r.savedPinyin).toEqual([3]);
   });
 
   it("returns the same object when nothing changed", () => {

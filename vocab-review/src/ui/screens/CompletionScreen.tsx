@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { navigate } from "../../app/router";
+import { listPath, navigate } from "../../app/router";
 import { useCollection, useReviewSession } from "../../app/session";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Screen } from "../components/Screen";
@@ -22,10 +22,17 @@ export function CompletionScreen() {
             <dt>Saved words</dt>
             <dd>{formatNumber(progress.saved)}</dd>
           </div>
+          <div className="stat">
+            <dt>Save Pinyin</dt>
+            <dd>{formatNumber(progress.savedPinyin)}</dd>
+          </div>
         </dl>
         <nav className="menu" aria-label="Next">
-          <button type="button" className="menu-item" onClick={() => navigate("/saved")}>
+          <button type="button" className="menu-item" onClick={() => navigate(listPath("saved"))}>
             Review saved words
+          </button>
+          <button type="button" className="menu-item" onClick={() => navigate(listPath("savedPinyin"))}>
+            Review Save Pinyin words
           </button>
           <button type="button" className="menu-item" onClick={() => setConfirm(true)}>
             Reset vocabulary progress
@@ -45,7 +52,10 @@ export function CompletionScreen() {
         }}
       >
         <p>Every word becomes unreviewed and the deck is shuffled again.</p>
-        <p>Your {formatNumber(progress.saved)} saved words are kept.</p>
+        <p>
+          Your {formatNumber(progress.saved)} saved words and {formatNumber(progress.savedPinyin)} Save Pinyin
+          words are kept.
+        </p>
       </ConfirmDialog>
     </Screen>
   );

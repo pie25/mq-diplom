@@ -19,9 +19,9 @@ function Router() {
     case "review":
       return <ReviewScreen />;
     case "saved":
-      return <SavedScreen />;
+      return <SavedScreen category={route.category} />;
     case "word":
-      return <WordScreen id={route.id} />;
+      return <WordScreen id={route.id} category={route.category} />;
     case "settings":
       return <SettingsScreen />;
     default:

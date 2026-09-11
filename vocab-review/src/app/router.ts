@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { SavedCategory } from "../domain/review";
 import { withViewTransition, type NavDirection } from "./viewTransition";
 
 export type { NavDirection } from "./viewTransition";
@@ -6,20 +7,41 @@ export type { NavDirection } from "./viewTransition";
 export type Route =
   | { name: "home" }
   | { name: "review" }
-  | { name: "saved" }
-  | { name: "word"; id: number }
+  | { name: "saved"; category: SavedCategory }
+  | { name: "word"; id: number; category: SavedCategory }
   | { name: "settings" };
 
 /** How "deep" each screen sits; moving deeper pushes, moving shallower pops. */
 const DEPTH: Record<Route["name"], number> = { home: 0, review: 1, saved: 1, settings: 1, word: 2 };
 
+/** URL segment for each bookmark list: #/saved and #/pinyin. */
+const LIST_SEGMENT: Record<SavedCategory, string> = { saved: "saved", savedPinyin: "pinyin" };
+
+export function listPath(category: SavedCategory): string {
+  return "/" + LIST_SEGMENT[category];
+}
+
+export function wordPath(category: SavedCategory, id: number): string {
+  return `${listPath(category)}/${id}`;
+}
+
+function categoryFromSegment(segment: string): SavedCategory | null {
+  return (Object.keys(LIST_SEGMENT) as SavedCategory[]).find((c) => LIST_SEGMENT[c] === segment) ?? null;
+}
+
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#\/?/, "").replace(/\/$/, "");
   if (path === "review") return { name: "review" };
-  if (path === "saved") return { name: "saved" };
   if (path === "settings") return { name: "settings" };
-  const word = path.match(/^saved\/(\d+)$/);
-  if (word) return { name: "word", id: Number(word[1]) };
+  const list = path.match(/^([a-z]+)(?:\/(\d+))?$/);
+  if (list) {
+    const category = categoryFromSegment(list[1]);
+    if (category) {
+      return list[2] === undefined
+        ? { name: "saved", category }
+        : { name: "word", id: Number(list[2]), category };
+    }
+  }
   return { name: "home" };
 }
 

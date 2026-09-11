@@ -7,11 +7,20 @@
  * swiping left steps back one card and un-reviews it, so undoing decisions is
  * simply walking backwards through the same stable sequence.
  *
+ * Besides review progress the state keeps two independent bookmark lists with
+ * identical mechanics: `saved` (the word itself) and `savedPinyin` (words
+ * whose pronunciation the learner wants to keep). They are addressed by a
+ * `SavedCategory` so the UI never has to know which list is which.
+ *
  * Nothing in here knows about HSK, React or storage.
  */
 import type { Collection } from "./types";
 
-export const REVIEW_SCHEMA_VERSION = 1;
+/** v1: order/position/reviewed/saved. v2 adds `savedPinyin`. */
+export const REVIEW_SCHEMA_VERSION = 2;
+
+export type SavedCategory = "saved" | "savedPinyin";
+export const SAVED_CATEGORIES: readonly SavedCategory[] = ["saved", "savedPinyin"];
 
 export interface ReviewState {
   schemaVersion: number;
@@ -24,6 +33,8 @@ export interface ReviewState {
   reviewed: number[];
   /** Ids of saved (bookmarked) words, in the order they were saved. */
   saved: number[];
+  /** Ids of words saved for their pronunciation ("Save Pinyin"), independent from `saved`. */
+  savedPinyin: number[];
   createdAt: string;
   updatedAt: string;
 }
@@ -33,6 +44,7 @@ export interface Progress {
   reviewed: number;
   remaining: number;
   saved: number;
+  savedPinyin: number;
   /** 1-based number of the active card, for "word #638" style display. */
   cardNumber: number;
 }
@@ -61,8 +73,25 @@ export function createReviewState(collection: Collection, rng: Rng = Math.random
     position: 0,
     reviewed: [],
     saved: [],
+    savedPinyin: [],
     createdAt: stamp,
     updatedAt: stamp,
+  };
+}
+
+/**
+ * Upgrade a stored state from an older schema. v1 states have no
+ * `savedPinyin`; everything else is carried over untouched.
+ */
+export function normalizeReviewState(stored: ReviewState): ReviewState {
+  const v = stored as Partial<ReviewState>;
+  const ids = (list: unknown): number[] =>
+    Array.isArray(list) ? list.filter((x): x is number => typeof x === "number") : [];
+  return {
+    ...stored,
+    schemaVersion: REVIEW_SCHEMA_VERSION,
+    saved: ids(v.saved),
+    savedPinyin: ids(v.savedPinyin),
   };
 }
 
@@ -89,6 +118,7 @@ export function reconcileWithCollection(
 
   const reviewed = state.reviewed.filter((id) => known.has(id));
   const saved = state.saved.filter((id) => known.has(id));
+  const savedPinyin = state.savedPinyin.filter((id) => known.has(id));
 
   let position = order.indexOf(activeId);
   if (position < 0) position = Math.min(state.position, order.length);
@@ -97,10 +127,11 @@ export function reconcileWithCollection(
     order.length === state.order.length &&
     reviewed.length === state.reviewed.length &&
     saved.length === state.saved.length &&
+    savedPinyin.length === state.savedPinyin.length &&
     position === state.position &&
     order.every((id, i) => id === state.order[i]);
   if (unchanged) return state;
-  return { ...state, order, reviewed, saved, position, updatedAt: now() };
+  return { ...state, order, reviewed, saved, savedPinyin, position, updatedAt: now() };
 }
 
 export function getCurrentWordId(state: ReviewState): number | null {
@@ -144,14 +175,29 @@ export function undoPreviousReview(state: ReviewState): ReviewState {
   };
 }
 
-export function isSaved(state: ReviewState, id: number): boolean {
-  return state.saved.includes(id);
+/* ---------- bookmark lists (saved / savedPinyin) ---------- */
+
+export function isSavedIn(state: ReviewState, category: SavedCategory, id: number): boolean {
+  return state[category].includes(id);
 }
 
-export function toggleSavedWord(state: ReviewState, id: number): ReviewState {
-  const saved = isSaved(state, id) ? state.saved.filter((x) => x !== id) : [...state.saved, id];
-  return { ...state, saved, updatedAt: now() };
+export function toggleSavedIn(state: ReviewState, category: SavedCategory, id: number): ReviewState {
+  const list = isSavedIn(state, category, id)
+    ? state[category].filter((x) => x !== id)
+    : [...state[category], id];
+  return { ...state, [category]: list, updatedAt: now() };
 }
+
+export function clearSavedIn(state: ReviewState, category: SavedCategory): ReviewState {
+  if (state[category].length === 0) return state;
+  return { ...state, [category]: [], updatedAt: now() };
+}
+
+/** Shorthands for the plain "saved" list. */
+export const isSaved = (state: ReviewState, id: number): boolean => isSavedIn(state, "saved", id);
+export const toggleSavedWord = (state: ReviewState, id: number): ReviewState =>
+  toggleSavedIn(state, "saved", id);
+export const clearSavedWords = (state: ReviewState): ReviewState => clearSavedIn(state, "saved");
 
 export function getProgress(state: ReviewState): Progress {
   const total = state.order.length;
@@ -161,11 +207,12 @@ export function getProgress(state: ReviewState): Progress {
     reviewed,
     remaining: total - reviewed,
     saved: state.saved.length,
+    savedPinyin: state.savedPinyin.length,
     cardNumber: Math.min(state.position + 1, total),
   };
 }
 
-/** New shuffled deck, nothing reviewed. Saved words are kept. */
+/** New shuffled deck, nothing reviewed. Both bookmark lists are kept. */
 export function resetProgress(state: ReviewState, rng: Rng = Math.random): ReviewState {
   return {
     ...state,
@@ -176,13 +223,9 @@ export function resetProgress(state: ReviewState, rng: Rng = Math.random): Revie
   };
 }
 
-/** Everything gone: new deck, no reviews, no saved words. */
+/** Everything gone: new deck, no reviews, no saved words of either kind. */
 export function resetAll(collection: Collection, rng: Rng = Math.random): ReviewState {
   return createReviewState(collection, rng);
-}
-
-export function clearSavedWords(state: ReviewState): ReviewState {
-  return { ...state, saved: [], updatedAt: now() };
 }
 
 export function isReviewState(value: unknown): value is ReviewState {

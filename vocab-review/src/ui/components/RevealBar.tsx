@@ -1,18 +1,22 @@
 interface RevealBarProps {
   saved: boolean;
+  savedPinyin: boolean;
   pronunciation: boolean;
   definition: boolean;
   onToggleSaved: () => void;
+  onToggleSavedPinyin: () => void;
   onTogglePronunciation: () => void;
   onToggleDefinition: () => void;
 }
 
-/** The three controls under a word: save, pinyin, definition. */
+/** The four controls under a word: save, save pinyin, pinyin, definition. */
 export function RevealBar({
   saved,
+  savedPinyin,
   pronunciation,
   definition,
   onToggleSaved,
+  onToggleSavedPinyin,
   onTogglePronunciation,
   onToggleDefinition,
 }: RevealBarProps) {
@@ -24,10 +28,21 @@ export function RevealBar({
         aria-pressed={saved}
         onClick={onToggleSaved}
       >
-        <span className="reveal-icon" aria-hidden="true">
+        <span className="reveal-icon symbol" aria-hidden="true">
           {saved ? "★" : "☆"}
         </span>
         <span className="reveal-label">{saved ? "Saved" : "Save"}</span>
+      </button>
+      <button
+        type="button"
+        className={"reveal-button" + (savedPinyin ? " active" : "")}
+        aria-pressed={savedPinyin}
+        onClick={onToggleSavedPinyin}
+      >
+        <span className="reveal-icon symbol" aria-hidden="true">
+          ♫
+        </span>
+        <span className="reveal-label">{savedPinyin ? "Pinyin saved" : "Save Pinyin"}</span>
       </button>
       <button
         type="button"
