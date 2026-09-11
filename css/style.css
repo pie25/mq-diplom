@@ -5,14 +5,14 @@
 
 @font-face {
   font-family: Open Sans-Regular;
-  src: url("/Users/polinadanilova/Desktop/mq-diplom/fonts/OpenSans-Regular.woff");
+  src: url("../fonts/OpenSans-Regular.woff");
   font-weight: regular;
   font-style: normal;
 }
 
 @font-face {
   font-family: Open Sans-Bold;
-  src: url("/Users/polinadanilova/Desktop/mq-diplom/fonts/OpenSans-Bold.woff");
+  src: url("../fonts/OpenSans-Bold.woff");
   font-weight: bold;
   font-style: normal;
 }
@@ -23,7 +23,7 @@
 }
 
 .header {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/banner-bg.jpg");
+  background-image: url("../images/banner-bg.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -131,16 +131,16 @@
 }
 
 .trend1 {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/trend1.jpg");
+  background-image: url("../images/trend1.jpg");
 }
 .trend2 {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/trend2.jpg");
+  background-image: url("../images/trend2.jpg");
 }
 .trend3 {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/trend3.jpg");
+  background-image: url("../images/trend3.jpg");
 }
 .trend4 {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/trend4.jpg");
+  background-image: url("../images/trend4.jpg");
 }
 .trend {
   width: 25%;
@@ -380,7 +380,7 @@
   background-color: #b59f5b;
   border: none;
 
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/search.svg");
+  background-image: url("../svg/search.svg");
   background-repeat: no-repeat;
   background-size: 18px;
   background-position: center center;
@@ -597,23 +597,23 @@ strike {
 }
 
 .socials-link-facebook {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/002-facebook-logo.svg");
+  background-image: url("../svg/002-facebook-logo.svg");
 }
 
 .socials-link-twitter {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/004-twitter.svg");
+  background-image: url("../svg/004-twitter.svg");
 }
 
 .socials-link-pinterest {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/001-pinterest.svg");
+  background-image: url("../svg/001-pinterest.svg");
 }
 
 .socials-link-instagram {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/005-instagram.svg");
+  background-image: url("../svg/005-instagram.svg");
 }
 
 .socials-link-tumblr {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/003-tumblr.svg");
+  background-image: url("../svg/003-tumblr.svg");
 }
 
 .copyright {
@@ -730,7 +730,7 @@ strike {
 
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/form-arrows.svg");
+  background-image: url("../svg/form-arrows.svg");
   background-repeat: no-repeat;
   background-position: right 5px center;
   background-size: 10px;
@@ -755,7 +755,7 @@ strike {
   vertical-align: middle;
   width: 20px;
   height: 20px;
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/form-empty-circle.svg");
+  background-image: url("../svg/form-empty-circle.svg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 20px;
@@ -770,7 +770,7 @@ strike {
 }
 
 .radio:checked ~ .radio-group-text::before {
-  background-image: url("/Users/polinadanilova/Desktop/mq-diplom/svg/form-circle.svg");
+  background-image: url("../svg/form-circle.svg");
 }
 
 .field_textarea {
@@ -855,7 +855,7 @@ strike {
   }
 
   .header {
-    background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/banner-bg-tablet.jpg");
+    background-image: url("../images/banner-bg-tablet.jpg");
     width: 100vw;
   }
 
@@ -1032,7 +1032,7 @@ strike {
   }
 
   .header {
-    background-image: url("/Users/polinadanilova/Desktop/mq-diplom/images/banner-mobile.jpg");
+    background-image: url("../images/banner-mobile.jpg");
     width: 100vw;
     height: 100vh;
   }
