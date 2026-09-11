@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - claude/chinese-vocab-review-app-u9xbhd
   workflow_dispatch:
 
 permissions:
